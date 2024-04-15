@@ -1,0 +1,15 @@
+{
+  "name": "mern-rxdb-test",
+  "version": "1.0.0",
+  "description": "RxDB test",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "concurrently \"cd backend && npm run server\" \"cd frontend && npm run dev\""
+    },
+  "author": "joankii",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
