@@ -1,7 +1,13 @@
 import { useState } from 'react'
+import { addRxPlugin } from 'rxdb'
+import { RxDBDevModePlugin } from 'rxdb/plugins/dev-mode'
+import { replicateRxCollection } from 'rxdb/plugins/replication'
+
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+
+addRxPlugin(RxDBDevModePlugin)
 
 function App() {
   const [count, setCount] = useState(0)
