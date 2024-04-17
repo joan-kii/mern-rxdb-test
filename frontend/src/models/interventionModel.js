@@ -1,5 +1,4 @@
 const interventionSchema = {
-  keyCompression: true,
   version: 0,
   title: 'intervention schema',
   primaryKey: 'id',
@@ -17,9 +16,9 @@ const interventionSchema = {
     }
   },
   required: [
-    id,
-    title,
-    text
+    'id',
+    'title',
+    'text'
   ]
 }
 

@@ -1,5 +1,4 @@
 const teamSchema = {
-  keyCompression: true,
   version: 0,
   title: 'team schema',
   primaryKey: 'id',
@@ -26,10 +25,10 @@ const teamSchema = {
     }
   },
   required: [
-    id,
-    name,
-    n_teammates,
-    interventions
+    'id',
+    'name',
+    'n_teammates',
+    'interventions'
   ]
 }
 

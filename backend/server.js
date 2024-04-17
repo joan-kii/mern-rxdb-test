@@ -1,5 +1,6 @@
 import { MongoClient } from 'mongodb'
 import express from 'express'
+import cors from 'cors'
 import 'dotenv/config'
 import { lastOfArray } from 'rxdb/plugins/core'
 import { Subject } from 'rxjs'
@@ -8,12 +9,16 @@ const mongoClient = new MongoClient(process.env.MONGO_CLIENT)
 const mongoConnection = await mongoClient.connect(process.env.MONGO_URI)
 const mongoDatabase = mongoConnection.db('mern-rxdb-test')
 const teamsCollection = mongoDatabase.collection('teams')
+const corsOptions = {
+  origin: `${process.env.CLIENT}`
+}
 
 // express app
 const app = express()
 
 // middleware
 app.use(express.json())
+app.use(cors())
 
 let lastEventId = 0
 const pullStream$ = new Subject()
@@ -41,46 +46,44 @@ app.get('/pull', async (req, res) => {
   res.end(JSON.stringify({ documents, checkpoint: newCheckpoint }))
 })
 
-// seguir aquí
 app.get('/push', (req, res) => {
-  const changeRows = req.body;
-  const conflicts = [];
+  const changeRows = req.body
+  const conflicts = []
   const event = {
-      id: lastEventId++,
-      documents: [],
-      checkpoint: null
-  };
+    id: lastEventId++,
+    documents: [],
+    checkpoint: null
+  }
+
   for(const changeRow of changeRows){
-      const realMasterState = mongoCollection.findOne({id: changeRow.newDocumentState.id});
-      if(
-          realMasterState && !changeRow.assumedMasterState ||
-          (
-              realMasterState && changeRow.assumedMasterState &&
-              /*
-               * For simplicity we detect conflicts on the server by only compare the updateAt value.
-               * In reality you might want to do a more complex check or do a deep-equal comparison.
-               */
-              realMasterState.updatedAt !== changeRow.assumedMasterState.updatedAt
-          )
-      ) {
-          // we have a conflict
-          conflicts.push(realMasterState);
-      } else {
-          // no conflict -> write the document
-          mongoCollection.updateOne(
-              {id: changeRow.newDocumentState.id},
-              changeRow.newDocumentState
-          );
-          event.documents.push(changeRow.newDocumentState);
-          event.checkpoint = { id: changeRow.newDocumentState.id, updatedAt: changeRow.newDocumentState.updatedAt };
-      }
+    const realMasterState = teamsCollection.findOne({id: changeRow.newDocumentState.id});
+    if (realMasterState && !changeRow.assumedMasterState || (realMasterState && changeRow.assumedMasterState &&
+      realMasterState.updatedAt !== changeRow.assumedMasterState.updatedAt)) {
+        conflicts.push(realMasterState)
+    } else {
+      teamsCollection.updateOne({ id: changeRow.newDocumentState.id }, changeRow.newDocumentState)
+      event.documents.push(changeRow.newDocumentState)
+      event.checkpoint = { id: changeRow.newDocumentState.id, updatedAt: changeRow.newDocumentState.updatedAt }
+    }
   }
-  if(event.documents.length > 0){
-      myPullStream$.next(event);
+
+  if (event.documents.length > 0) {
+    pullStream$.next(event)
   }
-  res.setHeader('Content-Type', 'application/json');
-  res.end(JSON.stringify(conflicts));
-});
+
+  res.setHeader('Content-Type', 'application/json')
+  res.end(JSON.stringify(conflicts))
+})
+
+app.get('/pullStream', (req, res) => {
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Connection': 'keep-alive',
+    'Cache-Control': 'no-cache'
+  });
+  const subscription = pullStream$.subscribe(event => res.write('data: ' + JSON.stringify(event) + '\n\n'))
+  req.on('close', () => subscription.unsubscribe())
+})
 
 // running app
 app.listen(process.env.PORT, () => {
