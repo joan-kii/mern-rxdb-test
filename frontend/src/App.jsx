@@ -1,6 +1,6 @@
 import { addRxPlugin } from 'rxdb'
 import { RxDBDevModePlugin } from 'rxdb/plugins/dev-mode'
-import { useRxCollection, useRxDB } from 'rxdb-hooks'
+import { useRxCollection, useRxDB, useRxQuery } from 'rxdb-hooks'
 
 import './App.css'
 import TeamForm from './components/TeamForm'
@@ -11,16 +11,16 @@ addRxPlugin(RxDBDevModePlugin)
 function App() {
   const db = useRxDB()
   const teamCollection = useRxCollection('team')
-  console.log(teamCollection)
-  // seguir aquí
+  const teamQuery = teamCollection?.find({})
   
-  /* const teamExist = teamCollection.find()
-  console.log(teamExist) */
+  const { result: team, isFetching } = useRxQuery(teamQuery)
+
+  if (isFetching) 'Cargando...'
 
   return (
     <>
-      {!teamCollection && <TeamForm />}
-      {teamCollection && <InterventionForm />}
+      {team.length === 0 && <TeamForm />}
+      {team.length === 1 && <InterventionForm />}
     </>
   )
 }

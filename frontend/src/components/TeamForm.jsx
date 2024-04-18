@@ -1,14 +1,15 @@
 import { useState } from 'react'
+import { useRxCollection } from 'rxdb-hooks'
 
 function TeamForm() {
   const [teamName, setTeamName] = useState('')
   const [numberOfTeammates, setNumberOfTeammates] = useState(0)
-  const [team, setTeam] = useState({})
+  const collection = useRxCollection('characters')
 
-  const handleClick = (e) => {
+  const handleClick = async (e) => {
     e.preventDefault()
-    setTeam({teamName, numberOfTeammates})
-    console.log(team);
+    // seguir aquí
+    /* await collection.insert({}) */
     setTeamName('')
     setNumberOfTeammates(0)
   }

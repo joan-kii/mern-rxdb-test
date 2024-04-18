@@ -8,7 +8,7 @@ import interventionSchema from '../models/interventionModel'
 
 export const initialize = async () => {
   const db = await createRxDatabase({
-    name: 'team',
+    name: 'group-rxdb',
     storage: getRxStorageDexie(),
     eventReduce: true
   })
