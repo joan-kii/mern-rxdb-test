@@ -1,6 +1,6 @@
 import express from 'express'
 
-import { pullRxdb, pushRxdb, pullStreamRxdb } from '../controllers/rxdbController'
+import { pullRxdb, pushRxdb, pullStreamRxdb } from '../controllers/rxdbController.js'
 
 const rxdbRouter = express.Router()
 

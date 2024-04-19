@@ -4,12 +4,20 @@ import { useRxCollection } from 'rxdb-hooks'
 function TeamForm() {
   const [teamName, setTeamName] = useState('')
   const [numberOfTeammates, setNumberOfTeammates] = useState(0)
-  const collection = useRxCollection('characters')
+  const collection = useRxCollection('team')
 
   const handleClick = async (e) => {
     e.preventDefault()
-    // seguir aquí
-    /* await collection.insert({}) */
+    const url = `${import.meta.env.VITE_SERVER}/team/new`
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      body: JSON.stringify({ teamName, numberOfTeammates })
+    })
+    const team = await response.json()
+    await collection.insert({ ...team, id: team._id })
     setTeamName('')
     setNumberOfTeammates(0)
   }

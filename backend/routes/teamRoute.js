@@ -1,6 +1,6 @@
 import express from 'express'
 
-import { createTeam } from '../controllers/teamController'
+import createTeam from '../controllers/teamController.js'
 
 const teamRouter = express.Router()
 

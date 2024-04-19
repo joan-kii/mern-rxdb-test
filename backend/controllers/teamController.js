@@ -1,11 +1,10 @@
-import { Team } from '../models/teamModel'
+import Team from '../models/teamModel.js'
 
 const createTeam = async (req, res) => {
-  const { name, numberOfTeammates } = req.body
-
+  const { teamName, numberOfTeammates } = req.body
   try {
     const team = await Team.create({
-      name,
+      name: teamName,
       n_teammates: numberOfTeammates
     })
     res.status(200).json(team)

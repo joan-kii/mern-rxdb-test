@@ -1,13 +1,15 @@
 import { Subject } from 'rxjs'
 import { lastOfArray } from 'rxdb/plugins/core'
 
+import Intervention from '../models/interventionModel.js'
+
 let lastEventId = 0
 const pullStream$ = new Subject()
 
 const pullRxdb = async (req, res) => {
   const id = req.query.id
   const updatedAt = parseInt(req.query.updatedAt, 10)
-  const documents = await teamsCollection.find({
+  const documents = await Intervention.find({
     $or: [
       {
         updateAt: { $gt: updatedAt }
@@ -17,7 +19,7 @@ const pullRxdb = async (req, res) => {
         id: { $gt: id }
       }
     ]
-  }).limit(parseInt(req.query.batchSize, 10)).toArray()
+  }).limit(parseInt(req.query.batchSize, 10))
   const newCheckpoint = documents.length === 0 ? { id, updatedAt } : {
     id: lastOfArray(documents).id,
     updatedAt: lastOfArray(documents).updatedAt
@@ -36,12 +38,12 @@ const pushRxdb = (req, res) => {
   }
 
   for(const changeRow of changeRows){
-    const realMasterState = teamsCollection.findOne({id: changeRow.newDocumentState.id});
+    const realMasterState = Intervention.findOne({id: changeRow.newDocumentState.id})
     if (realMasterState && !changeRow.assumedMasterState || (realMasterState && changeRow.assumedMasterState &&
       realMasterState.updatedAt !== changeRow.assumedMasterState.updatedAt)) {
         conflicts.push(realMasterState)
     } else {
-      teamsCollection.updateOne({ id: changeRow.newDocumentState.id }, changeRow.newDocumentState)
+      Intervention.updateOne({ id: changeRow.newDocumentState.id }, changeRow.newDocumentState)
       event.documents.push(changeRow.newDocumentState)
       event.checkpoint = { id: changeRow.newDocumentState.id, updatedAt: changeRow.newDocumentState.updatedAt }
     }

@@ -24,7 +24,7 @@ export const initialize = async () => {
   
   const pullStream$ = new Subject()
   
-  const eventSource = new EventSource(`${import.meta.env.VITE_SERVER}/pullStream`, { withCredentials: true })
+  const eventSource = new EventSource(`${import.meta.env.VITE_SERVER}/db/pullStream`, { withCredentials: true })
   eventSource.onmessage = event => {
     const eventData = JSON.parse(event.data)
     pullStream$.next({
@@ -40,7 +40,7 @@ export const initialize = async () => {
     replicationIdentifier: 'http-team-replication',
     push: {
       async handler(changeRows) {
-        const rawResponse = await fetch(`${import.meta.env.VITE_SERVER}/push`, {
+        const rawResponse = await fetch(`${import.meta.env.VITE_SERVER}/db/push`, {
           method: 'POST',
           headers: {
             'Accept': 'application/json',
@@ -56,7 +56,7 @@ export const initialize = async () => {
       async handler(checkpointOrNull, batchSize) {
         const updatedAt = checkpointOrNull ? checkpointOrNull.updatedAt : 0
         const id = checkpointOrNull ? checkpointOrNull.id : ''
-        const response = await fetch(`${import.meta.env.VITE_SERVER}/pull?updatedAt=${updatedAt}&id=${id}&limit=${batchSize}`)
+        const response = await fetch(`${import.meta.env.VITE_SERVER}/db/pull?updatedAt=${updatedAt}&id=${id}&limit=${batchSize}`)
         const data = await response.json()
         return {
           documents: data.documents,
