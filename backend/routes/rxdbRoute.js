@@ -8,7 +8,7 @@ const rxdbRouter = express.Router()
 rxdbRouter.get('/pull', pullRxdb)
 
 // Push RxDB
-rxdbRouter.get('/pull', pushRxdb)
+rxdbRouter.post('/push', pushRxdb)
 
 // Pull Stream RxDB
 rxdbRouter.get('/pullStream', pullStreamRxdb)

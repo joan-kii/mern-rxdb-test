@@ -1,10 +1,10 @@
 const interventionSchema = {
   version: 0,
   title: 'intervention schema',
-  primaryKey: 'id',
+  primaryKey: 'rxdbId',
   type: 'object',
   properties: {
-    id: {
+    rxdbId: {
       type: 'string',
       maxLength: 100
     },
@@ -16,7 +16,7 @@ const interventionSchema = {
     }
   },
   required: [
-    'id',
+    'rxdbId',
     'title',
     'text'
   ]

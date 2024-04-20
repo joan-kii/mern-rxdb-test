@@ -1,14 +1,15 @@
 import { useState } from 'react'
+import { useRxCollection } from 'rxdb-hooks'
+import { v4 as uuidv4 } from 'uuid'
 
 function InterventionForm() {
   const [title, setTitle] = useState('')
   const [text, setText] = useState('')
-  const [intervention, setIntervention] = useState({})
+  const collection = useRxCollection('interventions')
 
-  const handleClick = (e) => {
+  const handleClick = async (e) => {
     e.preventDefault()
-    setIntervention({ title, text })
-    console.log(intervention)
+    await collection.insert({ rxdbId: uuidv4(), title, text })
     setTitle('')
     setText('')
   }

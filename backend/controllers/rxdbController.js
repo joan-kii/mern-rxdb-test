@@ -28,7 +28,7 @@ const pullRxdb = async (req, res) => {
   res.end(JSON.stringify({ documents, checkpoint: newCheckpoint }))
 }
 
-const pushRxdb = (req, res) => {
+const pushRxdb = async (req, res) => {
   const changeRows = req.body
   const conflicts = []
   const event = {
@@ -38,14 +38,14 @@ const pushRxdb = (req, res) => {
   }
 
   for(const changeRow of changeRows){
-    const realMasterState = Intervention.findOne({id: changeRow.newDocumentState.id})
+    const realMasterState = await Intervention.findOne({rxdbId: changeRow.newDocumentState.rxdbId})
     if (realMasterState && !changeRow.assumedMasterState || (realMasterState && changeRow.assumedMasterState &&
       realMasterState.updatedAt !== changeRow.assumedMasterState.updatedAt)) {
         conflicts.push(realMasterState)
     } else {
-      Intervention.updateOne({ id: changeRow.newDocumentState.id }, changeRow.newDocumentState)
+      await Intervention.findOneAndUpdate({ rxdbId: changeRow.newDocumentState.rxdbId }, changeRow.newDocumentState, { upsert: true })
       event.documents.push(changeRow.newDocumentState)
-      event.checkpoint = { id: changeRow.newDocumentState.id, updatedAt: changeRow.newDocumentState.updatedAt }
+      event.checkpoint = { rxdbId: changeRow.newDocumentState.rxdbId, updatedAt: changeRow.newDocumentState.updatedAt }
     }
   }
 
@@ -61,7 +61,8 @@ const pullStreamRxdb = (req, res) => {
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
     'Connection': 'keep-alive',
-    'Cache-Control': 'no-cache'
+    'Cache-Control': 'no-cache',
+    'Access-Control-Allow-Credentials': 'true'
   });
   const subscription = pullStream$.subscribe(event => res.write('data: ' + JSON.stringify(event) + '\n\n'))
   req.on('close', () => subscription.unsubscribe())
