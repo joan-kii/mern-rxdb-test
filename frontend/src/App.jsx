@@ -5,6 +5,7 @@ import { useRxCollection, useRxDB, useRxQuery } from 'rxdb-hooks'
 import './App.css'
 import TeamForm from './components/TeamForm'
 import InterventionForm from './components/InterventionForm'
+import InterventionList from './components/InterventionList'
 
 addRxPlugin(RxDBDevModePlugin)
 
@@ -21,6 +22,7 @@ function App() {
     <>
       {team.length === 0 && <TeamForm />}
       {team.length === 1 && <InterventionForm />}
+      {team.length === 1 && <InterventionList />}
     </>
   )
 }
